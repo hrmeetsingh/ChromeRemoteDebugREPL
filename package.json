@@ -1,0 +1,13 @@
+{
+  "name": "ChromeRemoteDebugREPL",
+  "version": "1.0.0",
+  "description": "REPL for connecting chrome remote interface to a running chrome instance",
+  "main": "index.js",
+  "author": "Harmeet Singh",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "chrome-remote-interface": "^0.27.2",
+    "repl": "^0.1.3"
+  }
+}
