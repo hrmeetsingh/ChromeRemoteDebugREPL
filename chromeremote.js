@@ -3,27 +3,17 @@ const pjson = require("./package.json");
 const chalk = require("chalk");
 const cri = require("chrome-remote-interface");
 
-let _client,
-  clientProxy,
-  page,
-  network,
-  runtime,
-  input,
-  dom,
-  overlay,
-  security,
-  target,
-  pages;
+let _client, page, network, runtime, dom, overlay, security, target, pages;
 
-const currentHost = "127.0.0.1";
+const chromeHost = "127.0.0.1";
 const localProtocol = true;
 
-const list_pages = async currentPort => {
+const list_pages = async chromePort => {
   return new Promise(async function list(resolve) {
     try {
       const browserTargets = await cri.List({
-        host: currentHost,
-        port: currentPort
+        host: chromeHost,
+        port: chromePort
       });
 
       pages = browserTargets.filter(target => target.type === "page");
@@ -34,12 +24,12 @@ const list_pages = async currentPort => {
   });
 };
 
-const connect_to_cri = async currentPort => {
+const connect_to_remote_chrome = async chromePort => {
   return new Promise(async function connect(resolve) {
     try {
       const browserTargets = await cri.List({
-        host: currentHost,
-        port: currentPort
+        host: chromeHost,
+        port: chromePort
       });
       browserTargets.map(target => console.log(target));
       if (!browserTargets.length) throw new Error("No targets created yet 1!");
@@ -103,7 +93,7 @@ replServer.defineCommand("attach", localPort => {
       localPort
     )
   );
-  connect_to_cri(localPort)
+  connect_to_remote_chrome(localPort)
     .then(c => {
       replServer.context.client = c;
       replServer.displayPrompt();
