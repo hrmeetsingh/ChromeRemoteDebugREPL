@@ -26,7 +26,7 @@ After starting chrome with debuging flag, run the following command to start chr
 
 **Starting the REPL -** `yarn start`
 
-### Getting list of running browsers and attaching remote interface
+## Getting list of running browsers and attaching remote interface
 
 **Getting list of browsers -** `ChromeRemoteDebugREPL:REPL> .list <port number>`
 
