@@ -3,7 +3,16 @@ const pjson = require("./package.json");
 const chalk = require("chalk");
 const cri = require("chrome-remote-interface");
 
-let _client, page, network, runtime, dom, overlay, security, target, pages;
+let _client,
+  page,
+  network,
+  runtime,
+  dom,
+  overlay,
+  security,
+  target,
+  pages,
+  clientWrapper;
 
 const chromeHost = "127.0.0.1";
 const localProtocol = true;
@@ -95,10 +104,19 @@ replServer.defineCommand("attach", localPort => {
   );
   connect_to_remote_chrome(localPort)
     .then(c => {
-      replServer.context.client = c;
+      replServer.context.client = () => getClientWrapper(c);
       replServer.displayPrompt();
     })
     .catch(err => {
       console.log("error", err);
     });
 });
+
+function getClientWrapper(target) {
+  const handler = {
+    get: (target, name) => {
+      return target[name];
+    }
+  };
+  return new Proxy(target, handler);
+}
