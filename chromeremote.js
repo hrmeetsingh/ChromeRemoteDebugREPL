@@ -29,6 +29,7 @@ const list_pages = async chromePort => {
       resolve(pages);
     } catch (e) {
       console.log(e);
+      replServer.displayPrompt();
     }
   });
 };
@@ -41,7 +42,7 @@ const connect_to_remote_chrome = async chromePort => {
         port: chromePort
       });
       browserTargets.map(target => console.log(target));
-      if (!browserTargets.length) throw new Error("No targets created yet 1!");
+      if (!browserTargets.length) throw new Error("No targets created yet!");
       target = browserTargets.filter(target => target.type === "page")[0];
 
       await cri({ target, local: localProtocol }, async c => {
@@ -65,6 +66,7 @@ const connect_to_remote_chrome = async chromePort => {
       });
     } catch (e) {
       console.log("error connecting -", e);
+      replServer.displayPrompt();
     }
   });
 };
@@ -79,37 +81,57 @@ replServer.on("exit", () => {
 });
 
 replServer.defineCommand("list", localPort => {
-  console.log(
-    chalk.blueBright("Detecting on local machine port : ", localPort)
-  );
-  list_pages(localPort)
-    .then(c => {
-      replServer.context.pages = c;
-      c.map(page => {
-        console.log(chalk.green("Active page detected - URL ", page.url));
+  try {
+    if (!localPort.length) {
+      throw new Error("Port number not passed");
+    }
+
+    console.log(
+      chalk.blueBright("Detecting on local machine port : ", localPort)
+    );
+    list_pages(localPort)
+      .then(c => {
+        replServer.context.pages = c;
+        c.map(page => {
+          console.log(chalk.green("Active page detected - URL ", page.url));
+        });
+        replServer.displayPrompt();
+      })
+      .catch(err => {
+        console.log("error", err);
+        replServer.displayPrompt();
       });
-      replServer.displayPrompt();
-    })
-    .catch(err => {
-      console.log("error", err);
-    });
+  } catch (err) {
+    console.log(chalk.red(err));
+    replServer.displayPrompt();
+  }
 });
 
 replServer.defineCommand("attach", localPort => {
-  console.log(
-    chalk.blueBright(
-      "Detecting and attaching on local machine port : ",
-      localPort
-    )
-  );
-  connect_to_remote_chrome(localPort)
-    .then(c => {
-      replServer.context.client = () => getClientWrapper(c);
-      replServer.displayPrompt();
-    })
-    .catch(err => {
-      console.log("error", err);
-    });
+  try {
+    if (!localPort.length) {
+      throw "Port not passed";
+    }
+
+    console.log(
+      chalk.blueBright(
+        "Detecting and attaching on local machine port : ",
+        localPort
+      )
+    );
+    connect_to_remote_chrome(localPort)
+      .then(c => {
+        replServer.context.client = () => getClientWrapper(c);
+        replServer.displayPrompt();
+      })
+      .catch(err => {
+        console.log("error", err);
+        replServer.displayPrompt();
+      });
+  } catch (err) {
+    console.log(chalk.red(err));
+    replServer.displayPrompt();
+  }
 });
 
 function getClientWrapper(target) {
