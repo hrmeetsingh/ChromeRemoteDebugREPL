@@ -12,5 +12,8 @@
   },
   "scripts": {
     "start": "yarn node chromeremote.js"
+  },
+  "devDependencies": {
+    "eslint": "^8.7.0"
   }
 }

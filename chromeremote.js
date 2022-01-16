@@ -10,27 +10,18 @@ let _client,
   dom,
   overlay,
   security,
-  target,
-  pages,
-  clientWrapper;
+  target;
 
 const chromeHost = "127.0.0.1";
 const localProtocol = true;
 
-const list_pages = async chromePort => {
-  return new Promise(async function list(resolve) {
-    try {
-      const browserTargets = await cri.List({
-        host: chromeHost,
-        port: chromePort
-      });
-
-      pages = browserTargets.filter(target => target.type === "page");
-      resolve(pages);
-    } catch (e) {
-      console.log(e);
-      replServer.displayPrompt();
-    }
+const list_pages = chromePort => {
+  return new Promise(function list(resolve, reject) {
+      cri.List({host: chromeHost,port: chromePort})
+      .then((browserTargets) => browserTargets
+        .filter(target => target.type === "page"))
+      .then(pages => resolve(pages))
+      .catch((e) => reject(e));
   });
 };
 
@@ -50,7 +41,6 @@ const connect_to_remote_chrome = async chromePort => {
         page = c.Page;
         network = c.Network;
         runtime = c.Runtime;
-        input = c.Input;
         dom = c.DOM;
         overlay = c.Overlay;
         security = c.Security;
